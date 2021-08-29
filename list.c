@@ -187,11 +187,13 @@ struct node* create_sorted_list(struct node *head)
 	while(head->next != NULL) {
 		pNow = (struct node *)malloc(sizeof(struct node));
 		pNew = (struct node *)malloc(sizeof(struct node));
-		head->data = pNew->data; // pNewが入れるべきデータ。next =NULL
+		pNew -> data = head->data; // pNewが入れるべきデータ。next =NULL
 
 		if(ans->data > pNew->data) { //入れるデータが先頭よりも小さい
-			pNew->next = ans;
+			struct node *tmp;
+			tmp = ans;
 			ans = pNew;
+			ans->next = tmp;
 		} else { // どこにデータを挿入すべきか探索する。ないならTail
 			pNow = ans; // indexを初期化（Ans側で）
 			while(pNow->next != NULL) {
