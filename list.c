@@ -73,11 +73,16 @@ int main(int argc, char *argv[])
 	
 	printf("array1 list1 array2 list2 : %d %d %d %d\n", ans1_array, ans1_list, ans2_array, ans2_list);	
 
-	/* Create a sorted list(in ascending order) from the unsorted list */
+	/* Create a sorted list(in ascending order) 
+	from the unsorted list */
+	struct node *ans_sorted;
+	ans_sorted =  create_sorted_list(ans);
+	print_list(ans_sorted);
 
 	/* Print the sorted list */
 
-	/* Copy the sorted list to an array with the same sorted order */
+	/* Copy the sorted list to an array 
+	with the same sorted order */
 
 	/* Print out the sorted array */    
 
@@ -171,7 +176,38 @@ int copy_list_to_array(struct node *head, int *array)
 struct node* create_sorted_list(struct node *head)
 {
 	/* TODO: Complete this function */
+	struct node *ans, *pNow, *pNew;
+
+	ans = (struct node *)malloc(sizeof(struct node));
+
+	ans -> data = head->data; // ansは回答側のHeadを指すアドレス
+	ans -> next = NULL;
+	head = head->next; // initiation
+
+	while(head->next != NULL) {
+		pNow = (struct node *)malloc(sizeof(struct node));
+		pNew = (struct node *)malloc(sizeof(struct node));
+		head->data = pNew->data; // pNewが入れるべきデータ。next =NULL
+
+		if(ans->data > pNew->data) { //入れるデータが先頭よりも小さい
+			pNew->next = ans;
+			ans = pNew;
+		} else { // どこにデータを挿入すべきか探索する。ないならTail
+			pNow = ans; // indexを初期化（Ans側で）
+			while(pNow->next != NULL) {
+				if (pNow->data <= pNew->data && pNew->data < pNow->next->data) {
+					pNew->next = pNow->next;
+					pNow->next = pNew;
+					break;
+				}
+				pNow = pNow->next;	
+			}
+ 		}
+	head = head->next;	
+	}
+	return ans;
 }
+
 
 struct node* add_item_sorted(struct node *sorted_head, int data)
 {
