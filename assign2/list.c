@@ -16,7 +16,7 @@ int search_array(int integers[], int numints, int element);
 int search_list(struct node *head, int element);
 struct node* create_sorted_list(struct node *head);
 struct node* add_item_sorted(struct node *head, int data);
-int copy_list_to_array(struct node *head, int *array);
+int* copy_list_to_array(struct node *head);
 void print_list(struct node *head);
 void print_array(int integers[], int len);
 
@@ -75,30 +75,57 @@ int main(int argc, char *argv[])
 
 	/* Create a sorted list(in ascending order) 
 	from the unsorted list */
+	/* Print the sorted list */
 	struct node *ans_sorted;
 	ans_sorted =  create_sorted_list(ans);
+	printf("SORTED LINKED LIST: ");
 	print_list(ans_sorted);
 
-	/* Print the sorted list */
 
 	/* Copy the sorted list to an array 
 	with the same sorted order */
-
 	/* Print out the sorted array */    
+	int* ans_sorted_array = copy_list_to_array(ans_sorted);
+	int j = 0;
+	printf("SORTED ARRAY: ");
+	for (j = 0; j < 20; j++) {
+		printf(" %d |", ans_sorted_array[j]); 
+	}
+	printf("\n");
+
 
 	/* Print the original linked list again */
+	printf("ORIGINAL LINKED LIST:");
+	print_list(ans);
 
 	/* Print the original array again */
+	printf("OPRIGINAL ARRAY: |");
+	for (j = 0; j <20; j++) {
+		printf(" %d |", num[j]); 
+	}
+	printf("\n"); 
 
 
 	/* Open a file for writing */
-
+	FILE *output_file;
+	output_file = fopen("sorted_numbers.txt", "w");
+	if (output_file == NULL){
+		printf("Cannot open"); 
+		exit(1);
+	}
+	
 	/* Write the sorted array to a file named "sorted_numbers.txt" */
+	fprintf(output_file, "SORTED ARRAY: ");
+	for (j = 0; j < 20; j++) {
+		fprintf(output_file, " %d |", ans_sorted_array[j]); 
+	}
+	fprintf(output_file, "\n");
+
 
 	/* Print out the number of integers written to the file */
-
-
-
+	fprintf(output_file, "The number of written integer is %d\n.", j);
+	
+	fclose(output_file);
 	return 0;
 
 }
@@ -168,9 +195,20 @@ int search_array(int integers[], int numints, int element)
 	return -1;
 }
 
-int copy_list_to_array(struct node *head, int *array)
+int* copy_list_to_array(struct node *head)
 {
 	/* TODO: Complete this function */
+	int i = 0;
+	int *ans; // ans は配列の先頭のポインタ
+	ans = (int*)malloc(sizeof(int)); // 初期化を忘れるとコアダンプになる
+
+	while(head != NULL){
+		*(ans + i) = head->data;
+		head = head->next;
+		++i;
+	}
+	return ans;
+
 }
 
 struct node* create_sorted_list(struct node *head)
@@ -184,7 +222,7 @@ struct node* create_sorted_list(struct node *head)
 	ans -> next = NULL;
 	head = head->next; // initiation
 
-	while(head->next != NULL) {
+	while(head != NULL) {
 		pNow = (struct node *)malloc(sizeof(struct node));
 		pNew = (struct node *)malloc(sizeof(struct node));
 		pNew -> data = head->data; // pNewが入れるべきデータ。next =NULL
@@ -197,16 +235,22 @@ struct node* create_sorted_list(struct node *head)
 		} else { // どこにデータを挿入すべきか探索する。ないならTail
 			pNow = ans; // indexを初期化（Ans側で）
 			while(pNow->next != NULL) {
+				//printf("%p\n", pNow->next->next);
 				if (pNow->data <= pNew->data && pNew->data < pNow->next->data) {
 					pNew->next = pNow->next;
 					pNow->next = pNew;
 					break;
-				}
-				pNow = pNow->next;	
+				} 
+				pNow = pNow->next;
+			}
+			if (pNow->next == NULL) { // 一番大きかったら最後に入れる
+				pNow->next = pNew;
+				pNew->next = NULL;
 			}
  		}
 	head = head->next;	
 	}
+
 	return ans;
 }
 
