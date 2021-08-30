@@ -69,13 +69,45 @@ char* charcat(char* p, char ch) {
   return ++p;
 }
 
+void reversechar(char s[])
+{
+	char* pstart;
+	int len = 0;
+	char tmp;
+	int i;
+
+	pstart = s; // pstart is the beginning of pointer of s
+
+	while (*s++ != '\0')
+		++len;
+	--s;
+	--s;
+
+	while(pstart < s) {	
+		tmp = *pstart;
+		printf("3 tmp pstart s %c %c %c\n", tmp, *pstart, *s);
+		*pstart = *s;
+		printf("4 tmp pstart s %c %c %c\n", tmp, *pstart, *s);
+		*s = tmp;
+		printf("5 tmp pstart s %c %c %c\n", tmp, *pstart, *s);
+		++pstart;
+		--s;
+	}
+ // '\0' remains at the last address.
+
+}
+
 char *format_ip(unsigned int ip_int) {
 	/* TODO: return IP in the form A.B.C.D (dotted decimal notation) */
 	int i = 0, counter = 0;
 	int ans[4], index = 0;
-	char *res;
-	char c;
-	res = (char*)malloc(sizeof(char));
+	unsigned char *res, *resstart;
+	unsigned char c;
+	res = (char*)malloc(sizeof("255.255.255.255"));
+	resstart = res;
+	//printf("start res: %p\n", res);
+	//printf("start resstart: %p\n", resstart);
+	
 
 	for( i = 0; i < 4; ++i){
 		ans[i] = ip_int % (16*16);
@@ -83,30 +115,38 @@ char *format_ip(unsigned int ip_int) {
 		printf("pre IP is %d\n", ans[i]);  
 	}
 
-	index = ans[0];
-	printf("index is %d\n", index);
+	for ( i = 0; i < 4; i++) {
+		index = ans[i];
+		printf("index is %d\n", index);
 
-	while( index%10 ) {
-		c = '0' + index%10;
-		charcat(res, c);
-		printf("index amari is %d\n", index%10);
-		printf("*res is %d\n", *res);
-		index /= 10;
-		counter++;
-	}
-	charcat(res, '\0');
+		while( index%10 ) {
+			c = '0' + index%10;
+			res = charcat(res, c);
+			printf("index amari is %d\n", index%10);
+			printf("*res is %c\n", *(res-1)); // it works here.
+			printf("address is %p\n", res);
+		
+			index /= 10;
+			counter++;
+		}
+		res = charcat(res, '\0');
+		res = resstart; 
+		reversechar(res);
 
+		res = charcat(res, '.');
 
-	// for( i = 3; i > -1; --i){
-	// 	res = (ans[i] + '0') + ".";
-	// }
-	//res = res - counter - 1;
+		for (res = resstart; *res != '\0'; res++ )
+			printf("the complete of insert of index[i] + . is: %c\n", *res);
+		//res = resstart;
+		//printf("after: %p\n", res);
 
-	while(*res == '\0'){
-		printf("hoge %c\n", res[0]);
+	} // end of for
+
+	while(*res != '\0'){
+		printf("char of res %c\n", *res);
 		res++;
 	}
-
+	
 	return res;
 
 }
