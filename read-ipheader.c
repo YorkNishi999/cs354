@@ -4,7 +4,13 @@
 #include <sys/types.h>
 #include <fcntl.h>
 
-#define HDR_SZ 48
+#define HDR_SZ 20 // byte
+
+
+//https://docs.google.com/spreadsheets/d/1i2wCyYvGyrIV2F-k-KzwTfA2XjZZ1y0LmbgpjxTycdg/edit#gid=0
+
+
+
 
 int is_little_endian() {
 	/* TODO: return 1 if machine is little endian, 0 if not */ 
@@ -22,30 +28,87 @@ int is_little_endian() {
 
 }
 
-unsigned long long int get_length(unsigned char *hdr) {
+unsigned int get_length(unsigned char *hdr) {
 	/* TODO: extract Total length field*/
-	unsigned long long int ans = 0;
+	unsigned int ans = 0;
 	int i;
-	char *hdrans;
-	hdrans = (char *)malloc(sizeof(char));
 
 	// hdr[8] ~ hdr[15]を連続して取って10進法にする
-	for (i = 8; i < 16; ++i) {
+	for (i = 2; i < 4; ++i) {
 		ans = ans*16*16 + hdr[i];
-		printf("hdr[i] hdr[i+1] i ans: %d %d %lld\n",hdr[i], i, ans);
 	}
 
-	return ans; // 4616596929870299901 になるべき
+	return ans; // 0x44 = 68
 
 }
 
-unsigned int get_ip(char *hdr, int option) {
+unsigned int get_ip(unsigned char *hdr, int option) {
 	/* TODO: extract Source IP if option is 0 and 
 			 Destination IP if option is 1 */
+
+	int i = 0;
+	unsigned long int ans = 0;
+
+	if (option == 0){
+		for (i = 12; i < 16; ++i) {
+			ans = ans*16*16 + hdr[i]; //2886992637
+			printf("hdr[i] i ans: %d %d %ld\n",hdr[i], i, ans);
+		}
+	} else if (option == 1) {
+		for (i = 16; i < 20; ++i) {
+			ans = ans*16*16 + hdr[i]; //2886991878
+			printf("hdr[i] i ans: %d %d %ld\n",hdr[i], i, ans);
+		}
+	}
+	return ans;
+
+}
+
+char* charcat(char* p, char ch) {
+  *p = ch;
+  return ++p;
 }
 
 char *format_ip(unsigned int ip_int) {
 	/* TODO: return IP in the form A.B.C.D (dotted decimal notation) */
+	int i = 0, counter = 0;
+	int ans[4], index = 0;
+	char *res;
+	char c;
+	res = (char*)malloc(sizeof(char));
+
+	for( i = 0; i < 4; ++i){
+		ans[i] = ip_int % (16*16);
+		ip_int /= (16*16);
+		printf("pre IP is %d\n", ans[i]);  
+	}
+
+	index = ans[0];
+	printf("index is %d\n", index);
+
+	while( index%10 ) {
+		c = '0' + index%10;
+		charcat(res, c);
+		printf("index amari is %d\n", index%10);
+		printf("*res is %d\n", *res);
+		index /= 10;
+		counter++;
+	}
+	charcat(res, '\0');
+
+
+	// for( i = 3; i > -1; --i){
+	// 	res = (ans[i] + '0') + ".";
+	// }
+	//res = res - counter - 1;
+
+	while(*res == '\0'){
+		printf("hoge %c\n", res[0]);
+		res++;
+	}
+
+	return res;
+
 }
 
 int is_checksum_valid(char *hdr) {
@@ -94,10 +157,10 @@ int main(int argc, char *argv[]) {
 		printf("Machine is big endian\n");
 		return -1;
 	}
-	unsigned long long int len = get_length(hdr);
+	unsigned int len = get_length(hdr);
 
 
-	printf("total length: %llu bytes (0x%llx)\n", len, len);	
+	printf("total length: %u bytes (0x%x)\n", len, len);	
 	
 	if (is_checksum_valid(hdr)) {
 		printf("checksum is valid\n");
@@ -114,8 +177,8 @@ int main(int argc, char *argv[]) {
 	get_flags(hdr, 1), get_flags(hdr, 2));
 
 	// get source ip
-	unsigned int sip = get_ip(hdr, 0);
-	printf("source ip: %u (0x%x)\n", sip, sip);   
+	unsigned long int sip = get_ip(hdr, 0);
+	printf("source ip: %lu (0x%lx)\n", sip, sip);   
 	char *sip_formatted = format_ip(sip);
 	printf("formatted: %s\n",sip_formatted);
 	free(sip_formatted);
