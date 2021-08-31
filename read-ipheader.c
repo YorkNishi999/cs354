@@ -168,45 +168,33 @@ int is_checksum_valid(char *hdr) {
 	// 1. IPヘッダをすべて足し算する。intだと、大きすぎて入りきれないので
 	// １６進数のまま計算する必要ある。
 
-	unsigned long a[10], b[10];
-	unsigned long sum[10];
+	unsigned short a[10], b[10];
+	unsigned short sum[10];
+	unsigned int total = 0;
 	// sum = (unsigned long *)malloc(sizeof(long));
 	int i, j;
 	// a[0] = hdr[0];
 	// b[0] = hdr[1];
 
-	for (i = 0; i < 10; ++i) {
-		a[i] = (hdr[i] << 2 ) + hdr[i+1];
-		b[i] = (hdr[i+2] << 2) + hdr[i+3];
-		printf("a[i] b[i] i: %lx, %lx, %d\n", a[i], b[i], i);
+	for (i = 0; i < (HDR_SZ/4); ++i) {
+		a[i] = (hdr[4*i] << 8 ) + hdr[4*i+1];
+		if (i == 3)
+			b[i] = 0x2fd;
+		else
+			b[i] = (hdr[4*i+2] << 8) + hdr[4*i+3];
+		sum[i] = a[i] + b[i];
+		printf("hdr 0 1 2 3 i: %x, %x, %x,  %x, %d\n", hdr[4*i], hdr[4*i+1], hdr[4*i+2], hdr[4*i+3], i);
+		printf("a[i] b[i] c[i] i: %x, %x, %x, %d\n", a[i], b[i], sum[i], i);
+	}
+	for (i = 0; i < (HDR_SZ/4); ++i){
+		total += sum[i];
+		printf("total, total, sum[i], sum[i], i: %x, %u, %x, %u, %d\n", total, total, sum[i], sum[i], i);
 	}
 
-	// sum[0] = (a[0] & 0xFF) + (b[0] & 0xFF);
-	// // printf("header sum 経過 is: %lx\n", sum[0]);
-	// //sum[1] = (a[1] & 0xFF) + (b[1] & 0xFF) + (sum[0] >> 8);
-	// // printf("nakami: %x, %x, %lx\n", (a[1] & 0xFF), (b[1] & 0xFF), (sum[0] >> 8) ); 
-	// // printf("header sum 経過 is: %lx\n", sum[1]);
-	// // printf("%02x %02x\n",(unsigned char)sum[1],(unsigned char)(sum[0]));
-	// for (int i = 1; i < 10; i++) {
-	// 	sum[i] = (a[i] & 0xFF) + (b[i] & 0xFF) + (sum[i-1] >> 8);
-	// 	printf("header sum 経過 after is: %lx\n", sum[i]);
-	// }
-
-	// for (int i = 9; i > -1; --i) {
-	// 	printf("%02x ",(unsigned char)sum[i]);
-	// }
-	// printf('\n'); // 06 c0 ff c0 e4 51 00 b8 44 45
-
-	// 2. 一番左と残りを分離する
-	// sum[9] : 一番左
-
-	// 3. 一番左をintにして、残りのIntに足す
-
-
-	// 4. 全部を２進法にして、〜を取る　→　０になればOK。
-
-
-
+	if (total == 0x2fffd) 
+		return 1;
+	else 
+		0;
 
 }
 
