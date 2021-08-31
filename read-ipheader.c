@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <fcntl.h>
+#include <string.h>
 
 #define HDR_SZ 20 // byte
 
@@ -85,11 +86,8 @@ void reversechar(char s[])
 
 	while(pstart < s) {	
 		tmp = *pstart;
-		printf("3 tmp pstart s %c %c %c\n", tmp, *pstart, *s);
 		*pstart = *s;
-		printf("4 tmp pstart s %c %c %c\n", tmp, *pstart, *s);
 		*s = tmp;
-		printf("5 tmp pstart s %c %c %c\n", tmp, *pstart, *s);
 		++pstart;
 		--s;
 	}
@@ -97,55 +95,67 @@ void reversechar(char s[])
 
 }
 
+void itob(int n, char s[], int b) // nをb進数のchar*に変換
+{
+	int i = 0;
+	
+	do {
+		s[i++] = (n % b > 9) ? (n % b + 39 + '0') : (n % b + '0');
+	} while ((n /= b) > 0);
+
+	s[i] = '\0';
+
+}
+
+void printcharptr(unsigned char* ch)  // Char*を表示
+{
+	while (*ch) {
+		printf("%c", *ch);
+		ch++;
+	}
+
+	printf("\n");
+
+}
+
 char *format_ip(unsigned int ip_int) {
 	/* TODO: return IP in the form A.B.C.D (dotted decimal notation) */
 	int i = 0, counter = 0;
-	int ans[4], index = 0;
-	unsigned char *res, *resstart;
+	int ans[4], index = 0; // ans: 10進数。ピリオドで挟まれた数値
+	unsigned char *charans[4]; // 10進数をChar*にする。Char*（ポインタ）の配列
+	unsigned char *res, *resstart; // res: 答え
 	unsigned char c;
-	res = (char*)malloc(sizeof("255.255.255.255"));
-	resstart = res;
-	//printf("start res: %p\n", res);
-	//printf("start resstart: %p\n", resstart);
-	
 
-	for( i = 0; i < 4; ++i){
+	for (i = 0; i < 4; i++) { // メモリ確保
+		charans[i] = (char*)malloc(sizeof(char[4]));
+	}
+
+	for( i = 0; i < 4; ++i){ // 16進数を10進数に変換
 		ans[i] = ip_int % (16*16);
 		ip_int /= (16*16);
-		printf("pre IP is %d\n", ans[i]);  
 	}
 
-	for ( i = 0; i < 4; i++) {
+	for ( i = 0; i < 4; i++) { // int -> char* に変換
 		index = ans[i];
-		printf("index is %d\n", index);
+		itob(ans[i], charans[i], 10);
+	}  // charans[]はポインタがはいってる。その先は、charの文字列
 
-		while( index%10 ) {
-			c = '0' + index%10;
-			res = charcat(res, c);
-			printf("index amari is %d\n", index%10);
-			printf("*res is %c\n", *(res-1)); // it works here.
-			printf("address is %p\n", res);
-		
-			index /= 10;
-			counter++;
+	res = (char*)malloc(sizeof(char[32])); // resメモリ確保
+	resstart = res; // あとからresの最初に戻すので、開始アドレスを保存
+
+	for (i = 0; i < 4; ++i) {
+		while(*charans[i]) { 
+			*res =  *charans[i];
+			++res;
+			++charans[i];
 		}
-		res = charcat(res, '\0');
-		res = resstart; 
-		reversechar(res);
-
-		res = charcat(res, '.');
-
-		for (res = resstart; *res != '\0'; res++ )
-			printf("the complete of insert of index[i] + . is: %c\n", *res);
-		//res = resstart;
-		//printf("after: %p\n", res);
-
-	} // end of for
-
-	while(*res != '\0'){
-		printf("char of res %c\n", *res);
-		res++;
+		if (i < 3)
+			res = charcat(res, '.');
 	}
+	res = charcat(res, '\0');
+	
+	res = resstart;
+	reversechar(res);
 	
 	return res;
 
