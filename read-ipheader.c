@@ -34,7 +34,7 @@ unsigned int get_length(unsigned char *hdr) {
 	unsigned int ans = 0;
 	int i;
 
-	// hdr[8] ~ hdr[15]を連続して取って10進法にする
+	// hdr[2] ~ hdr[3]を連続して取って10進法にする
 	for (i = 2; i < 4; ++i) {
 		ans = ans*16*16 + hdr[i];
 	}
@@ -161,21 +161,108 @@ char *format_ip(unsigned int ip_int) {
 
 }
 
+
 int is_checksum_valid(char *hdr) {
 	/* TODO: if checksum valid, return 1; else return 0; */
+
+	// 1. IPヘッダをすべて足し算する。intだと、大きすぎて入りきれないので
+	// １６進数のまま計算する必要ある。
+
+	unsigned short a[10], b[10];
+	unsigned long sum[10];
+	// sum = (unsigned long *)malloc(sizeof(long));
+	int i, j;
+	// a[0] = hdr[0];
+	// b[0] = hdr[1];
+
+	for (i = 0; i < 10; ++i) {
+		a[i] = hdr[2*i];
+		b[i] = hdr[2*i+1];
+		printf("a[i] b[i] i: %x, %x, %d\n", a[i], b[i], i);
+	}
+
+	sum[0] = (a[0] & 0xFF) + (b[0] & 0xFF);
+	// printf("header sum 経過 is: %lx\n", sum[0]);
+	//sum[1] = (a[1] & 0xFF) + (b[1] & 0xFF) + (sum[0] >> 8);
+	// printf("nakami: %x, %x, %lx\n", (a[1] & 0xFF), (b[1] & 0xFF), (sum[0] >> 8) ); 
+	// printf("header sum 経過 is: %lx\n", sum[1]);
+	// printf("%02x %02x\n",(unsigned char)sum[1],(unsigned char)(sum[0]));
+	for (int i = 1; i < 10; i++) {
+		sum[i] = (a[i] & 0xFF) + (b[i] & 0xFF) + (sum[i-1] >> 8);
+		printf("header sum 経過 after is: %lx\n", sum[i]);
+	}
+
+	for (int i = 9; i > -1; --i) {
+		printf("%02x ",(unsigned char)sum[i]);
+	}
+	printf('\n');
+
+	// 2. １６進数になおして、一番左と残りを分離する
+
+	// 3. 一番左をintにして、残りのIntに足す
+
+	// 4. 全部を２進法にして、〜を取る　→　０になればOK。
+
+
+
+
 }
 
 int get_protocol(char *hdr) {
 	/* TODO: return the 8 bit protocol number as an integer */
+	unsigned long long int ans = 0;
+	int i;
+
+	// hdr[9]取って10進法にする
+	for (i = 9; i < 10; ++i) {
+		ans = ans*16*16 + hdr[i];
+	}
+
+	return ans; // 0x11 = 17
 } 
 
 int get_version(char *hdr) {
 	/* TODO: returns the 4 bit version number as an integer */
+	unsigned int ans = 0;
+	int i;
+
+	// hdr[9]取って10進法にする
+	for (i = 0; i < 1; ++i) {
+		ans = ans*16*16 + hdr[i];
+	}
+
+	return ans; // 0x45 = 69
 } 
 
-char get_flags(char *hdr, int pos) {
+
+int get_flags(char *hdr, int pos) {
 	/* TODO: returns the 1 bit (corresponding to the pos)
 			 from the flags field */
+	unsigned int ans = 0;
+	int i;
+	int anslist[3];
+
+	// hdr[６]から、１桁だけ持ってくる
+	for (i = 6; i < 7; ++i) {
+		ans = hdr[i]/16; // 0
+	}
+
+
+	// 二進法に変換
+	for (i = 0; i < 3; ++i) {
+		anslist[i] = ans % 2;
+		ans /= 2;
+	}
+	
+	switch (pos) {
+		case 0:
+			return anslist[0];
+		case 1:
+			return anslist[1];
+		case 2:
+			return anslist[2];
+	}
+
 }
 
 
@@ -197,6 +284,8 @@ int main(int argc, char *argv[]) {
 
 	/* TODO: Store the number of bytes read into n */
 	fclose(fp);
+
+	printf("start hdr address: %p\n", hdr);
 
 	/* DO NOT MODIFY BELOW THIS LINE */
 
