@@ -4,11 +4,11 @@
 
 int main()
 {
-	char * ch = "ABC";
+	// char * ch = "ABC";
 	// char c;
 	//ch = (char *)malloc(sizeof("ABC"));
 
-	// *ch = 'A';
+	char *ch = 'A';
 
 
 	while(*ch){
