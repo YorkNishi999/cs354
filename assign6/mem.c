@@ -196,35 +196,42 @@ Mem_Alloc()は、ライブラリ関数のmalloc()に似ています。Mem_Alloc�
 	block_header *index;
 
 	index = list_head;
-	printf("bh size and list_headsize is: %p, %p\n", index, list_head);
+	printf("bh size and list_headsize is: %p, %p\n", list_head, list_head->next);
 	printf("bh size and list_headsize is hoge: %d, %d\n", index->size_status, list_head->size_status);
 
 	while(index->next != NULL) {
+		printf("index is: %p, %p\n", index, index->next);
 		index = index->next;
 	}
 
-	// if (index == list_head) {
-	// 	printf("hoge");
-	// 	bh = list_head + 4 * size;
-	// 	list_head->next = bh;
-	// 	bh->size_status = 4 * size + 1; // for busy status
-	// 	bh->next = NULL;
-	// } else {
-	// 	printf("fuga");
-	// 	bh = index->size_status + 4 *size;
-	// 	index -> next = bh;
-	// 	bh->size_status = 4 * size + 1; // for busy status
-	// 	bh->next = NULL;
-	// }
+	if (index == list_head) {
+		printf("hoge");
+		bh = list_head + 4 * size;
+		list_head->next = bh;
+		bh->size_status = 4 * size + 1; // for busy status
+		bh->next = NULL;
+	} else {
+		printf("in index is: %p, %p, %d\n", index, index->next, index->size_status);
+		printf("fuga");
+		bh = index + index->size_status;
+		index -> next = bh;
+		bh->size_status = 4 * size + 1; // for busy status
+		bh->next = NULL;
+	}
 
-	bh = index + 4 *size;
-	index -> next = bh;
-	bh->size_status = 4 * size + 1; // for busy status
-	bh->next = NULL;
+	// bh = index + 4 *size;
+	// index -> next = bh;
+	// bh->size_status = 4 * size + 1; // for busy status
+	// bh->next = NULL;
+
+// 		bh = list_head + 4 * size;
+	// list_head->next	= bh;
+	// bh->size_status = 4 * size;
+	// bh->next = NULL;
 
 	printf("init size is: %d\n", list_head->size_status);
 	printf("bh size and list_headsize is: %d, %d\n", bh->size_status, list_head->size_status);
-	printf("bh pointer is : %08x\n", bh);
+	// printf("bh pointer is : %08x\n", bh);
 
 	if(bh->size_status > list_head->size_status) {
 		printf("bh size and list_headsize is hoge: %d, %d\n", bh->size_status, list_head->size_status);
