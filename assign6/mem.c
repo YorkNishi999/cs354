@@ -287,14 +287,17 @@ free()と同様に、ptrがNULLの場合は何の処理も行われません。�
 	printf("out recursion, index ad is: %p, %p, %p\n", index, index->next, index->next->next);
 	if(index -> next == ptr && index->next->next == NULL) {
 		printf("hoge 1\n");
-		index -> next = NULL; // この辺をどうすればコアダンプしないかよくわからない -> pointer(address)にNULLを入れること自体はSeg falut
+		//index -> next = NULL; // この辺をどうすればコアダンプしないかよくわからない -> pointer(address)にNULLを入れること自体はSeg falut
 		// が起こる要因にはならない。だめなのは、NULLを入れたアドレスを参照した場合。これで言えば、５行下のデバッグ用のPrintfが呼び出さ
 		// れたときに、Segfalutが起こってたようだ
 		// printf("index: %p\n", index);
+		index->next->size_status -= 1; // index == ptr
 		return 0;
 	} else if (index->next == ptr) {
 		printf("hoge 2\n");
-		index->next = index->next->next;
+		//index->next = index->next->next; // つなげるとなくなっちゃう
+		// やりたいこととしては、sizeはそのままで、StatusをBusy→Freeに変更する必要がある
+		index->next->size_status -= 1; // index == ptr
 		return 0;
 	} else {
 		printf("hoge 3\n");
