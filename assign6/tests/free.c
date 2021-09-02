@@ -9,6 +9,7 @@ int main() {
 
    ptr[0] = Mem_Alloc(4);
    ptr[1] = Mem_Alloc(8);
+   Mem_Dump();
    assert(Mem_Free(ptr[0]) == 0);
    assert(Mem_Free(ptr[1]) == 0);
 

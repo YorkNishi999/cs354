@@ -26,6 +26,8 @@ typedef struct block_hd{
 	/* ie, last two bits are always zero - can be used to store other information*/
 	/* LSB = 0 => free block */
 	/* LSB = 1 => allocated/busy block */
+	/* LSB: 最下位Bit */
+
 
 	/* So for a free block, the value stored in size_status will be the same as the block size*/
 	/* And for an allocated block, the value stored in size_status will be one more than the block size*/
@@ -187,23 +189,47 @@ Mem_Alloc()は、ライブラリ関数のmalloc()に似ています。Mem_Alloc�
 たアロケータブロックがヘッダのサイズをブロックサイズに含むのとは異な
 ることに注意してください。
 */
-
 {
+
 	/* Your code should go in here */
 	block_header *bh; // 定義で block_headerときちんと名付けしてあるので、Structは不要
+	block_header *index;
 
-	bh = list_head + 4 * size;
-	list_head->next	= bh;
-	bh->size_status = 4 * size;
+	index = list_head;
+	printf("bh size and list_headsize is: %p, %p\n", index, list_head);
+	printf("bh size and list_headsize is hoge: %d, %d\n", index->size_status, list_head->size_status);
+
+	while(index->next != NULL) {
+		index = index->next;
+	}
+
+	// if (index == list_head) {
+	// 	printf("hoge");
+	// 	bh = list_head + 4 * size;
+	// 	list_head->next = bh;
+	// 	bh->size_status = 4 * size + 1; // for busy status
+	// 	bh->next = NULL;
+	// } else {
+	// 	printf("fuga");
+	// 	bh = index->size_status + 4 *size;
+	// 	index -> next = bh;
+	// 	bh->size_status = 4 * size + 1; // for busy status
+	// 	bh->next = NULL;
+	// }
+
+	bh = index + 4 *size;
+	index -> next = bh;
+	bh->size_status = 4 * size + 1; // for busy status
 	bh->next = NULL;
 
 	printf("init size is: %d\n", list_head->size_status);
 	printf("bh size and list_headsize is: %d, %d\n", bh->size_status, list_head->size_status);
-	
+	printf("bh pointer is : %08x\n", bh);
 
-	if(bh->size_status > list_head->size_status)
-		printf("bh size and list_headsize is: %d, %d\n", bh->size_status, list_head->size_status);
+	if(bh->size_status > list_head->size_status) {
+		printf("bh size and list_headsize is hoge: %d, %d\n", bh->size_status, list_head->size_status);
 		return NULL;
+	}
 
 	return bh;
 
@@ -310,7 +336,6 @@ void Mem_Dump()
 	fflush(stdout);
 	return;
 }
-
 
 
 
