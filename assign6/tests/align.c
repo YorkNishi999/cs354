@@ -7,7 +7,7 @@
 
 int main() {
    assert(Mem_Init(4096,0) == 0);
-   int* ptr = (int*) Mem_Alloc(sizeof(int));
+   int* ptr = (int*) Mem_Alloc(300);
    printf("align pointer: %p\n", ptr);
    assert(ptr != NULL);
    assert((int)ptr % 4 == 0);

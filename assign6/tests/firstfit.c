@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include "mem.h"
+#include <stdio.h>
 
 int main() {
    assert(Mem_Init(4096,1) == 0);
@@ -8,12 +9,15 @@ int main() {
    void* test;
 
    ptr[0] = Mem_Alloc(300);
+   printf("hoge0");
    assert(ptr[0] != NULL);
 
    ptr[1] = Mem_Alloc(200);
+   printf("hoge1");
    assert(ptr[1] != NULL);
 
    ptr[2] = Mem_Alloc(200);
+   printf("hoge2");
    assert(ptr[2] != NULL);
 
    ptr[3] = Mem_Alloc(100);

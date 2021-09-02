@@ -14,7 +14,7 @@
 #include <string.h>
 #include "mem.h"
 
-int fit;
+int fit; // fit polilcy flag
 
 /* this structure serves as the header for each block */
 typedef struct block_hd{
@@ -47,7 +47,6 @@ typedef struct block_hd{
 block_header* list_head = NULL;
 /* list_head: 最初にある唯一のヘッダ。いろんな情報入れてある（←通常は）
 */
-
 
 
 /* Function used to Initialize the memory allocator */
@@ -138,8 +137,9 @@ Mem_Initはmmap()システムコールを使用してヒープ上の空間を初
 	/* To begin with, there is only one big, free block */
 	list_head = (block_header*)space_ptr;
 	list_head->next = NULL;
-	/* Remember that the 'size' stored in block size excludes the space for the header */
-	list_head->size_status = alloc_size - (int)sizeof(block_header);
+	/* Remember that the 'size' stored in block size 
+	excludes the space for the header */
+	list_head->size_status = alloc_size - (int)sizeof(block_header); // 自分自身の情報分はサイズから控除する
 	fit = policy;
 	return 0;
 } // end of mem init
@@ -160,10 +160,11 @@ void *Mem_Alloc(int size):
 Mem_Alloc()は、ライブラリ関数のmalloc()に似ています。Mem_Allocは、
 割り当てられるメモリ空間のサイズをバイト単位で入力パラメータとして受け取り、
 そのメモリ空間の開始点へのポインタを返します。(つまり、ヘッダ後の最初の有用
-なバイトの開始点へのポインタです）。)
+なバイトの開始点へのポインタです）。) -> done
 
 この関数は、Mem_Init() によって割り当てられた sizeOfRegion 内に、
-この要求を満たすのに十分な連続した空き領域がない場合は、NULL を返す。
+この要求を満たすのに十分な連続した空き領域がない場合は、NULL を返す。 > done
+
 パフォーマンスを向上させるために、Mem_Alloc()は4バイトアラインメント
 のメモリチャンクを返すようにしている。例えば、ユーザが1バイトのメモリを
 要求した場合、Mem_Alloc()の実装は4バイトのメモリを返すべきで、そうすれ
@@ -171,7 +172,7 @@ Mem_Alloc()は、ライブラリ関数のmalloc()に似ています。Mem_Alloc�
 返しているかどうかをデバッグするには、次のようにポインタを表示します。
 	printf("%08x", ptr)
 最後の桁は4の倍数（つまり、0、4、8、C）でなければなりません。
-例えば、0xb7b2c04cはOKで、0xb7b2c043はNGです。
+例えば、0xb7b2c04cはOKで、0xb7b2c043はNGです。 > done
 
 適切な空きブロックが見つかったら、そのブロック全体を割り当てに使
 うことができます。しかし、内部の断片化を引き起こし、スペースを無駄
@@ -195,6 +196,14 @@ Mem_Alloc()は、ライブラリ関数のmalloc()に似ています。Mem_Alloc�
 	list_head->next	= bh;
 	bh->size_status = 4 * size;
 	bh->next = NULL;
+
+	printf("init size is: %d\n", list_head->size_status);
+	printf("bh size and list_headsize is: %d, %d\n", bh->size_status, list_head->size_status);
+	
+
+	if(bh->size_status > list_head->size_status)
+		printf("bh size and list_headsize is: %d, %d\n", bh->size_status, list_head->size_status);
+		return NULL;
 
 	return bh;
 
