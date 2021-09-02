@@ -42,7 +42,7 @@ typedef struct block_hd{
 
 	// メモリのサイズと次のブロックヘッダへのポインタで構成
 
-}block_header;
+} block_header;
 
 /* Global variable - This will always point to the first block */
 /* ie, the block with the lowest address */
@@ -206,16 +206,19 @@ Mem_Alloc()は、ライブラリ関数のmalloc()に似ています。Mem_Alloc�
 
 	if (index == list_head) {
 		printf("hoge");
-		bh = list_head + 4 * size;
+		// bh = list_head + 4 * size;
+		bh = list_head + size;
 		list_head->next = bh;
-		bh->size_status = 4 * size + 1; // for busy status
+		// bh->size_status = 4 * size + 1; // for busy status
+		bh->size_status = size + 1; // for busy status
 		bh->next = NULL;
 	} else {
 		printf("in index is: %p, %p, %d\n", index, index->next, index->size_status);
 		printf("fuga");
 		bh = index + index->size_status;
 		index -> next = bh;
-		bh->size_status = 4 * size + 1; // for busy status
+		// bh->size_status = 4 * size + 1; // for busy status
+		bh->size_status = size + 1; // for busy status
 		bh->next = NULL;
 	}
 
@@ -265,6 +268,40 @@ free()と同様に、ptrがNULLの場合は何の処理も行われません。�
 
 {
 	/* Your code should go in here */
+	block_header *index;
+	index = list_head;
+
+	if (ptr == NULL)
+		return -1;
+
+	printf("hoge\n");
+
+	while (index->next != ptr) {
+			if (index->next->next == NULL)
+				break;
+		printf("before recursion, index ad is: %p, %p\n", index, index->next);
+		index = index->next;
+		printf("recursion, index ad is: %p, %p\n", index, index->next);
+	}
+// このとき、index -> next == ptr か、もしくは、
+	printf("out recursion, index ad is: %p, %p, %p\n", index, index->next, index->next->next);
+	if(index -> next == ptr && index->next->next == NULL) {
+		printf("hoge 1\n");
+		index -> next = NULL; // この辺をどうすればコアダンプしないかよくわからない -> pointer(address)にNULLを入れること自体はSeg falut
+		// が起こる要因にはならない。だめなのは、NULLを入れたアドレスを参照した場合。これで言えば、５行下のデバッグ用のPrintfが呼び出さ
+		// れたときに、Segfalutが起こってたようだ
+		// printf("index: %p\n", index);
+		return 0;
+	} else if (index->next == ptr) {
+		printf("hoge 2\n");
+		index->next = index->next->next;
+		return 0;
+	} else {
+		printf("hoge 3\n");
+		return -1;
+	}
+	// printf("out recursion, index ad is: %p, %p, %p\n", index, index->next, index->next->next);
+
 
 }
 

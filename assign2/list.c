@@ -145,6 +145,7 @@ struct node* create_list(int intarray[], int len)
 	for( i = len-2; i > -1; --i ) {
 		res = add_item_at_start(head, intarray[i]);
 	}
+	free(head);
 
 	return res;
 	

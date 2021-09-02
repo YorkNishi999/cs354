@@ -29,7 +29,7 @@ int main() {
    Mem_Dump();
 
 
-//   assert(Mem_Free((void*)0x28ff44) == -1);
+  assert(Mem_Free((void*)0x28ff44) == -1);
 
    exit(0);
 }

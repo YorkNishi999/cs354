@@ -1,3 +1,19 @@
 {
-	"editor.parameterHints.enabled": false
+	"editor.parameterHints.enabled": false,
+	"files.associations": {
+		"limits": "c",
+		"type_traits": "c",
+		"cfloat": "c",
+		"climits": "c",
+		"cmath": "c",
+		"cstdarg": "c",
+		"cstddef": "c",
+		"cstdint": "c",
+		"cstdio": "c",
+		"cstdlib": "c",
+		"exception": "c",
+		"new": "c",
+		"*.tcc": "c",
+		"typeinfo": "c"
+	}
 }
